@@ -1,60 +1,46 @@
 import requests
+from scanner.checks.headers import check_headers
+from scanner.checks.https import check_https
+from scanner.scoring import calculate_score
+from scanner.checks.cookies import check_cookies
+from scanner.checks.security_headers import check_security_headers
+
 
 def run_scan(url: str):
     findings = []
 
     try:
-        # Fix URL se manca https
+        original_url = url
+
+        # Fix URL se manca schema
         if not url.startswith("http"):
             url = "https://" + url
 
-        response = requests.get(url)
+        # Request con timeout (importante)
+        response = requests.get(url, timeout=5)
         headers = response.headers
 
+        # HTTPS checks 
+        findings.extend(check_https(original_url, response))
 
-        # CSP
-        if "Content-Security-Policy" not in headers:
-            findings.append({
-                "title": "Missing Content Security Policy",
-                "severity": "Medium",
-                "description": "The site does not define a Content Security Policy.",
-                "recommendation": "Add a CSP header to mitigate XSS attacks."
-            })
+        # Header checks
+        findings.extend(check_headers(headers))
 
-        # HSTS
-        if "Strict-Transport-Security" not in headers:
-            findings.append({
-                "title": "Missing HSTS",
-                "severity": "Medium",
-                "description": "The site does not enforce HTTPS via HSTS.",
-                "recommendation": "Add Strict-Transport-Security header."
-            })
+        #cookies
+        findings.extend(check_cookies(response))
 
-        # Server disclosure
-        if "Server" in headers:
-            findings.append({
-                "title": "Server Information Disclosure",
-                "severity": "Low",
-                "description": f"Server reveals version: {headers['Server']}",
-                "recommendation": "Hide or obfuscate server headers."
-            })
+        # Security headers extra
+        findings.extend(check_security_headers(headers))
 
-         #  CALCOLO SCORE
-        score = 100
+        # Score
+        score = calculate_score(findings)
 
-        for finding in findings:
-            if finding["severity"] == "Medium":
-                score -= 20
-            elif finding["severity"] == "Low":
-                score -= 10
 
-        if score < 0:
-            score = 0
 
         return {
             "status": "done",
-            "findings": findings,
-            "score": score
+            "score": score,
+            "findings": findings
         }
 
     except Exception as e:
