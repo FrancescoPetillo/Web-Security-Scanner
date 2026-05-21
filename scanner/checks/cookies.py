@@ -1,17 +1,17 @@
-def check_cookies(response):
+def check_cookies(cookies):
     findings = []
-
-    cookies = response.cookies  # ✅ DEFINITO QUI
 
     httponly_missing = []
     secure_missing = []
 
     for cookie in cookies:
-        if not cookie._rest.get("HttpOnly"):
-            httponly_missing.append(cookie.name)
+        # HttpOnly
+        if not cookie.get("httpOnly"):
+            httponly_missing.append(cookie.get("name"))
 
-        if not cookie.secure:
-            secure_missing.append(cookie.name)
+        # Secure
+        if not cookie.get("secure"):
+            secure_missing.append(cookie.get("name"))
 
     if httponly_missing:
         findings.append({
