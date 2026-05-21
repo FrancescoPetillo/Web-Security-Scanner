@@ -27,7 +27,15 @@ def group_findings(findings):
         elif "https" in title or "hsts" in title or "ssl" in title:
             grouped["https"].append(f)
 
-        elif "csp" in title or "header" in title or "server" in title:
+        elif (
+            "csp" in title
+            or "content security policy" in title
+            or "x-frame-options" in title
+            or "x-content-type-options" in title
+            or "referrer-policy" in title
+            or "header" in title
+            or "server" in title
+        ):
             grouped["headers"].append(f)
 
         else:
@@ -42,18 +50,15 @@ def run_scan(url: str):
     try:
         original_url = url
 
-        # Fix URL
         if not url.startswith("http"):
             url = "https://" + url
 
-        # 🔥 Fetch con Playwright
         data = fetch_page(url)
 
         headers = data["headers"]
         cookies = data["cookies"]
         final_url = data["url"]
 
-        # 🔍 Checks
         findings.extend(check_https(original_url, final_url))
         findings.extend(check_headers(headers))
         findings.extend(check_cookies(cookies))
@@ -61,19 +66,17 @@ def run_scan(url: str):
         findings.extend(check_exposed_files(final_url))
         findings.extend(check_http_methods(final_url))
 
-        # 🔥 Ordinamento per severità
         severity_order = {"High": 3, "Medium": 2, "Low": 1}
+
         findings = sorted(
             findings,
             key=lambda x: severity_order.get(x.get("severity"), 0),
             reverse=True
         )
 
-        # 📊 Score + Risk
         score = calculate_score(findings)
         risk_data = calculate_risk(score, findings)
 
-        # 🔥 Raggruppamento
         grouped = group_findings(findings)
 
         return {

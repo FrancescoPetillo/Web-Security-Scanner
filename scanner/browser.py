@@ -8,15 +8,13 @@ def fetch_page(url: str):
         context = browser.new_context()
         page = context.new_page()
 
-        page.goto(url, timeout=10000)
-
-        # 🔥 PRENDI RISPOSTA FINALE
-        response = page.wait_for_response(
-            lambda r: r.url == page.url and r.status == 200
+        response = page.goto(
+            url,
+            timeout=15000,
+            wait_until="domcontentloaded"
         )
 
         headers = response.headers if response else {}
-
         cookies = context.cookies()
         final_url = page.url
 

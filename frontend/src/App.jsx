@@ -1,16 +1,15 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import Results from "./pages/Results";
+
 function App() {
   return (
-    <div style={{ textAlign: "center", marginTop: "100px" }}>
-      <h1>Web Security Scanner</h1>
-
-      <input placeholder="Inserisci URL..." style={{ padding: "10px", width: "300px" }} />
-
-      <br /><br />
-
-      <button style={{ padding: "10px 20px" }}>
-        Avvia scansione
-      </button>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/results" element={<Results />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
