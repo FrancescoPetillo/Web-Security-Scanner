@@ -1,9 +1,13 @@
 import requests
+
 from scanner.checks.headers import check_headers
 from scanner.checks.https import check_https
-from scanner.scoring import calculate_score
 from scanner.checks.cookies import check_cookies
 from scanner.checks.security_headers import check_security_headers
+from scanner.checks.exposed_files import check_exposed_files
+from scanner.checks.http_methods import check_http_methods
+
+from scanner.scoring import calculate_score, calculate_risk
 
 
 def run_scan(url: str):
@@ -12,34 +16,38 @@ def run_scan(url: str):
     try:
         original_url = url
 
-        # Fix URL se manca schema
+        # Fix URL
         if not url.startswith("http"):
             url = "https://" + url
 
-        # Request con timeout (importante)
+        # Request
         response = requests.get(url, timeout=5)
         headers = response.headers
 
-        # HTTPS checks 
+        # Checks
         findings.extend(check_https(original_url, response))
-
-        # Header checks
         findings.extend(check_headers(headers))
-
-        #cookies
         findings.extend(check_cookies(response))
-
-        # Security headers extra
         findings.extend(check_security_headers(headers))
+        findings.extend(check_exposed_files(url))
+        findings.extend(check_http_methods(url))
 
-        # Score
+        # 🔥 Ordina per gravità
+        severity_order = {"High": 3, "Medium": 2, "Low": 1}
+        findings = sorted(
+            findings,
+            key=lambda x: severity_order.get(x["severity"], 0),
+            reverse=True
+        )
+
+        # Score + Risk
         score = calculate_score(findings)
-
-
+        risk_data = calculate_risk(score, findings)
 
         return {
             "status": "done",
             "score": score,
+            **risk_data,
             "findings": findings
         }
 

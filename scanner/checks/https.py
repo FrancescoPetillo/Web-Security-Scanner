@@ -2,7 +2,7 @@ def check_https(url, response):
     findings = []
 
     # HTTPS check
-    if not url.startswith("https"):
+    if not response.url.startswith("https"):
         findings.append({
             "title": "Site not using HTTPS",
             "severity": "High",

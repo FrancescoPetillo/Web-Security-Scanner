@@ -1,25 +1,32 @@
 def check_cookies(response):
     findings = []
 
-    cookies = response.cookies
+    cookies = response.cookies  # ✅ DEFINITO QUI
+
+    httponly_missing = []
+    secure_missing = []
 
     for cookie in cookies:
-        # HttpOnly check
         if not cookie._rest.get("HttpOnly"):
-            findings.append({
-                "title": "Cookie missing HttpOnly flag",
-                "severity": "Medium",
-                "description": f"Cookie '{cookie.name}' is missing HttpOnly flag.",
-                "recommendation": "Set HttpOnly flag to prevent access via JavaScript."
-            })
+            httponly_missing.append(cookie.name)
 
-        # Secure check
         if not cookie.secure:
-            findings.append({
-                "title": "Cookie missing Secure flag",
-                "severity": "Medium",
-                "description": f"Cookie '{cookie.name}' is not marked as Secure.",
-                "recommendation": "Set Secure flag to ensure cookie is sent over HTTPS only."
-            })
+            secure_missing.append(cookie.name)
+
+    if httponly_missing:
+        findings.append({
+            "title": "Cookies missing HttpOnly flag",
+            "severity": "Medium",
+            "description": f"{len(httponly_missing)} cookies missing HttpOnly.",
+            "recommendation": "Set HttpOnly flag on cookies."
+        })
+
+    if secure_missing:
+        findings.append({
+            "title": "Cookies missing Secure flag",
+            "severity": "Medium",
+            "description": f"{len(secure_missing)} cookies not marked Secure.",
+            "recommendation": "Set Secure flag."
+        })
 
     return findings
