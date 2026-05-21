@@ -1,63 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Web Security Scanner</title>
-    <style>
-        body {
-            font-family: Arial;
-            text-align: center;
-            margin-top: 50px;
-        }
-        input {
-            padding: 10px;
-            width: 300px;
-        }
-        button {
-            padding: 10px 20px;
-            margin-left: 10px;
-        }
-        .result {
-            margin-top: 30px;
-        }
-        .high { color: red; }
-        .medium { color: orange; }
-        .low { color: green; }
-    </style>
-</head>
-<body>
-
-    <h1>🔍 Web Security Scanner</h1>
-
-    <input type="text" id="urlInput" placeholder="Enter website URL">
-    <button onclick="scan()">Scan</button>
-
-    <div class="result" id="result"></div>
-
-    <script>
-        async function scan() {
-            const url = document.getElementById("urlInput").value;
-
-            const res = await fetch(`http://localhost:8000/scan?url=${url}`, {
-                method: "POST"
-            });
-
-            const data = await res.json();
-
-            let html = `<h2>Score: ${data.score} (${data.risk})</h2>`;
-
-            data.findings.forEach(f => {
-                html += `
-                    <div class="${f.severity.toLowerCase()}">
-                        <h3>${f.title}</h3>
-                        <p>${f.description}</p>
-                    </div>
-                `;
-            });
-
-            document.getElementById("result").innerHTML = html;
-        }
-    </script>
-
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>frontend</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
