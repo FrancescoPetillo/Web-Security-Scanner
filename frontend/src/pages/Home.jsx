@@ -14,11 +14,43 @@ function Home() {
     "🔐 Checking HTTPS...",
     "🍪 Analyzing cookies...",
     "🛡️ Inspecting security headers...",
-    "⚙️ Finalizing analysis..."
+    "⚙️ Finalizing analysis...",
   ];
 
+  function normalizeUrl(input) {
+    const trimmed = input.trim();
+
+    if (!trimmed) {
+      throw new Error("URL vuoto");
+    }
+
+    const withProtocol =
+      trimmed.startsWith("http://") || trimmed.startsWith("https://")
+        ? trimmed
+        : `https://${trimmed}`;
+
+    const parsed = new URL(withProtocol);
+
+    if (!["http:", "https:"].includes(parsed.protocol)) {
+      throw new Error("Protocollo non valido");
+    }
+
+    if (!parsed.hostname) {
+      throw new Error("Host non valido");
+    }
+
+    return parsed.toString();
+  }
+
   async function handleScan() {
-    if (!url) return;
+    let safeUrl;
+
+    try {
+      safeUrl = normalizeUrl(url);
+    } catch {
+      alert("Inserisci un URL valido");
+      return;
+    }
 
     setLoading(true);
 
@@ -30,7 +62,7 @@ function Home() {
 
     try {
       const res = await fetch(
-        `http://localhost:8000/scan?url=${encodeURIComponent(url)}`,
+        `http://localhost:8000/scan?url=${encodeURIComponent(safeUrl)}`,
         { method: "POST" }
       );
 
@@ -38,7 +70,6 @@ function Home() {
 
       clearInterval(interval);
       navigate("/results", { state: data });
-
     } catch (err) {
       clearInterval(interval);
 
@@ -48,6 +79,8 @@ function Home() {
           error: err.message,
         },
       });
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -66,13 +99,12 @@ function Home() {
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://example.com"
+            disabled={loading}
           />
 
           {!loading && (
-            <button className="scan-button" onClick={handleScan} aria-label="Avvia analisi di sicurezza">
-              <span className="scan-button__halo" />
-              <span className="scan-button__icon" aria-hidden="true" />
-              <span className="scan-button__text">Avvia analisi</span>
+            <button className="scan-button" onClick={handleScan}>
+              Avvia analisi
             </button>
           )}
         </div>
@@ -83,10 +115,6 @@ function Home() {
           </div>
         )}
       </div>
-
-      <p className="home-credit">
-        Ideato e sviluppato da Francesco Petillo e Gabriele Esposito.
-      </p>
     </div>
   );
 }
