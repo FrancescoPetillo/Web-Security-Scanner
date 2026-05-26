@@ -12,7 +12,7 @@ from scanner.checks.sqli_check import check_sqli
 from scanner.checks.exposure_check import check_exposed_paths
 
 from scanner.scoring import calculate_score, calculate_risk
-from scanner.reputation import get_reputation, get_domain, reputation_penalty
+from scanner.reputation import get_reputation, get_domain
 
 
 def group_findings(findings):
@@ -84,10 +84,9 @@ def run_scan(url: str):
         try:
             domain = get_domain(final_url)
             stats = get_reputation(domain)
-            penalty = reputation_penalty(stats)
         except:
+            domain = None
             stats = None
-            penalty = 0
 
         # 🔹 ordinamento per severità
         severity_order = {
@@ -104,12 +103,8 @@ def run_scan(url: str):
             reverse=True
         )
 
-        # 🔹 scoring base
-        score = calculate_score(findings)
-
-        # applica penalità reputazione
-        score -= penalty
-        score = max(0, min(score, 100))  # clamp
+        # 🔹 scoring contestuale
+        score = calculate_score(findings, reputation=stats, domain=domain)
 
         # 🔹 rischio
         risk_data = calculate_risk(score, findings)

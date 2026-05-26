@@ -2,7 +2,7 @@ import requests
 from urllib.parse import urlparse
 
 from scanner.scoring import calculate_score, calculate_risk
-from scanner.reputation import get_reputation, reputation_penalty
+from scanner.reputation import get_reputation
 
 
 def run_scan(url: str):
@@ -44,10 +44,8 @@ def run_scan(url: str):
         #  REPUTATION
         try:
             stats = get_reputation(domain)
-            rep_penalty = reputation_penalty(stats)
         except:
             stats = None
-            rep_penalty = 0
 
         #  SCORING
         score = calculate_score(
@@ -55,10 +53,6 @@ def run_scan(url: str):
             reputation=stats,
             domain=domain
         )
-
-        # applica anche penalty extra (se vuoi mantenerla separata)
-        score -= rep_penalty
-        score = max(0, min(score, 100))
 
         #  RISK
         risk_data = calculate_risk(score, findings)
