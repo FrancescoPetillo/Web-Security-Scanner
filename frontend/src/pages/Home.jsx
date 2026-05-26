@@ -76,14 +76,18 @@ function Home() {
 
       const data = await res.json();
 
+      sessionStorage.setItem("lastScanResult", JSON.stringify(data));
       navigate("/results", { state: data });
 
     } catch (err) {
+      const errorState = {
+        status: "error",
+        error: err.message || "Errore sconosciuto",
+      };
+
+      sessionStorage.setItem("lastScanResult", JSON.stringify(errorState));
       navigate("/results", {
-        state: {
-          status: "error",
-          error: err.message || "Errore sconosciuto",
-        },
+        state: errorState,
       });
     } finally {
       clearInterval(interval);

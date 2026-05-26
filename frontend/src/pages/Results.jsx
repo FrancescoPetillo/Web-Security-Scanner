@@ -3,9 +3,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "./Results.css";
 
 function Results() {
-  const { state } = useLocation();
+  const location = useLocation();
   const navigate = useNavigate();
   const [scoreFill, setScoreFill] = useState(0);
+  const storedResult = sessionStorage.getItem("lastScanResult");
+  const state = location.state || (storedResult ? JSON.parse(storedResult) : null);
   const score = Math.max(0, Math.min(Number(state?.score) || 0, 100));
   const riskLevel = state?.risk_level || "Unknown";
   const riskClass = riskLevel.toLowerCase().replace(/[^a-z0-9]+/g, "-");
