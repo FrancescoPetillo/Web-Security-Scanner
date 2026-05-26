@@ -16,7 +16,11 @@ def check_cookies(cookies):
     if httponly_missing:
         findings.append({
             "title": "Cookies missing HttpOnly flag",
+            "type": "hardening",
+            "category": "cookies",
             "severity": "Medium",
+            "confidence": "medium",
+            "impact": "moderate",
             "description": f"{len(httponly_missing)} cookies missing HttpOnly.",
             "recommendation": "Set HttpOnly flag on cookies."
         })
@@ -24,7 +28,11 @@ def check_cookies(cookies):
     if secure_missing:
         findings.append({
             "title": "Cookies missing Secure flag",
+            "type": "hardening",
+            "category": "cookies",
             "severity": "Medium",
+            "confidence": "medium",
+            "impact": "moderate",
             "description": f"{len(secure_missing)} cookies not marked Secure.",
             "recommendation": "Set Secure flag."
         })

@@ -37,7 +37,10 @@ def check_sqli(url: str):
                 findings.append({
                     "category": "OTHER",
                     "title": "Possible SQL Injection",
+                    "type": "vulnerability",
                     "severity": "High",
+                    "confidence": "high",
+                    "impact": "high",
                     "description": f"Parameter '{param}' may trigger SQL error messages.",
                     "recommendation": "Use prepared statements and avoid exposing database errors."
                 })

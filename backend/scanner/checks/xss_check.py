@@ -26,7 +26,10 @@ def check_xss(url: str):
                 findings.append({
                     "category": "OTHER",
                     "title": "Possible reflected XSS",
+                    "type": "vulnerability",
                     "severity": "High",
+                    "confidence": "high",
+                    "impact": "high",
                     "description": f"Parameter '{param}' reflects user input without proper encoding.",
                     "recommendation": "Sanitize and encode user input before rendering it in HTML."
                 })

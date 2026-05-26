@@ -13,7 +13,11 @@ def check_http_methods(url):
             if method in allow:
                 findings.append({
                     "title": "Dangerous HTTP method enabled",
+                    "type": "vulnerability",
+                    "category": "other",
                     "severity": "Medium",
+                    "confidence": "high",
+                    "impact": "moderate",
                     "description": f"Method {method} is allowed by the server.",
                     "recommendation": "Disable unnecessary HTTP methods."
                 })

@@ -51,6 +51,34 @@ def group_findings(findings):
     return grouped
 
 
+def build_scan_summary(score, findings, stats):
+    vulnerabilities = sum(1 for f in findings if f.get("type") == "vulnerability")
+    hardening = sum(1 for f in findings if f.get("type") == "hardening")
+    malicious = stats.get("malicious", 0) if stats else 0
+    suspicious = stats.get("suspicious", 0) if stats else 0
+
+    if malicious or suspicious:
+        reputation_status = "Reputation warnings found"
+    elif stats:
+        reputation_status = "Reputation clean"
+    else:
+        reputation_status = "Reputation unavailable"
+
+    if vulnerabilities == 0 and score >= 90:
+        message = "No confirmed critical vulnerabilities were detected. The remaining findings are mostly hardening improvements."
+    elif vulnerabilities == 0:
+        message = "No confirmed critical vulnerabilities were detected, but several hardening improvements are recommended."
+    else:
+        message = "Confirmed security issues were detected and should be reviewed before hardening recommendations."
+
+    return {
+        "message": message,
+        "vulnerabilities": vulnerabilities,
+        "hardening": hardening,
+        "reputation_status": reputation_status
+    }
+
+
 def run_scan(url: str):
     findings = []
 
@@ -111,6 +139,7 @@ def run_scan(url: str):
 
         # 🔹 grouping
         grouped = group_findings(findings)
+        summary = build_scan_summary(score, findings, stats)
 
         return {
             "status": "done",
@@ -118,6 +147,7 @@ def run_scan(url: str):
             "final_url": final_url,
             "score": score,
             **risk_data,
+            "summary": summary,
             "findings": findings,
             "grouped_findings": grouped,
             "reputation": {

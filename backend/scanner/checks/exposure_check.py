@@ -24,7 +24,10 @@ def check_exposed_paths(url: str):
                 findings.append({
                     "category": "OTHER",
                     "title": f"Potential exposed path: {path}",
+                    "type": "vulnerability" if res.status_code == 200 else "hardening",
                     "severity": "Medium" if res.status_code == 200 else "Low",
+                    "confidence": "medium" if res.status_code == 200 else "low",
+                    "impact": "moderate" if res.status_code == 200 else "low",
                     "description": f"The path '{path}' returned HTTP {res.status_code}.",
                     "recommendation": "Restrict access to sensitive paths and remove exposed files."
                 })

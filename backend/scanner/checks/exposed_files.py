@@ -18,7 +18,11 @@ def check_exposed_files(base_url):
             if response.status_code == 200:
                 findings.append({
                     "title": "Exposed sensitive file or endpoint",
+                    "type": "vulnerability",
+                    "category": "other",
                     "severity": "High",
+                    "confidence": "high",
+                    "impact": "high",
                     "description": f"Accessible path found: {path}",
                     "recommendation": "Restrict access to sensitive files and directories."
                 })

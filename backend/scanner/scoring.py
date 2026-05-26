@@ -34,11 +34,19 @@ def _normalized_title(finding):
 
 
 def _is_best_practice(finding):
+    finding_type = finding.get("type")
+    if finding_type:
+        return finding_type == "hardening"
+
     title = _normalized_title(finding)
     return any(keyword in title for keyword in BEST_PRACTICE_KEYWORDS)
 
 
 def _is_real_vulnerability(finding):
+    finding_type = finding.get("type")
+    if finding_type:
+        return finding_type == "vulnerability"
+
     title = _normalized_title(finding)
     return any(keyword in title for keyword in REAL_VULNERABILITY_KEYWORDS)
 
@@ -53,6 +61,21 @@ def _confidence_for(finding):
         return "low"
 
     return "medium"
+
+
+def _impact_for(finding):
+    impact = finding.get("impact")
+
+    if impact:
+        return impact.lower()
+
+    if _is_real_vulnerability(finding):
+        return "high"
+
+    if _is_best_practice(finding):
+        return "low"
+
+    return "moderate"
 
 
 def calculate_score(findings, reputation=None, domain=None):
@@ -72,19 +95,28 @@ def calculate_score(findings, reputation=None, domain=None):
         "low": 0.18
     }
 
+    impact_multiplier = {
+        "critical": 1.35,
+        "high": 1.0,
+        "moderate": 0.6,
+        "low": 0.28,
+        "info": 0
+    }
+
     real_high_count = 0
     medium_real_count = 0
 
     for finding in findings:
         severity = finding.get("severity", "Low")
         confidence = _confidence_for(finding)
+        impact = _impact_for(finding)
 
         weight = severity_weights.get(severity, 3)
         multiplier = confidence_multiplier.get(confidence, 0.45)
-        penalty = weight * multiplier
+        penalty = weight * multiplier * impact_multiplier.get(impact, 0.6)
 
         if _is_best_practice(finding):
-            penalty *= 0.45
+            penalty *= 0.5
         elif _is_real_vulnerability(finding):
             penalty *= 1.2
 

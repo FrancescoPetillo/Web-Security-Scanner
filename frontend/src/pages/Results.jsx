@@ -9,6 +9,7 @@ function Results() {
   const score = Math.max(0, Math.min(Number(state?.score) || 0, 100));
   const riskLevel = state?.risk_level || "Unknown";
   const riskClass = riskLevel.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  const summary = state?.summary;
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
@@ -69,6 +70,17 @@ function Results() {
         </div>
 
         <p className="score-panel__description">{state.risk_explanation}</p>
+
+        {summary && (
+          <div className="score-summary">
+            <p>{summary.message}</p>
+            <div className="score-summary__stats">
+              <span>{summary.vulnerabilities} vulnerabilities</span>
+              <span>{summary.hardening} hardening</span>
+              <span>{summary.reputation_status}</span>
+            </div>
+          </div>
+        )}
       </section>
 
       {Object.entries(grouped).map(([category, findings]) => (
@@ -94,6 +106,12 @@ function Results() {
                 <div className="finding-card__top">
                   <h3>{f.title}</h3>
                   <span>{severity}</span>
+                </div>
+
+                <div className="finding-card__meta">
+                  <span>{f.type || "finding"}</span>
+                  <span>Confidence: {f.confidence || "medium"}</span>
+                  <span>Impact: {f.impact || "moderate"}</span>
                 </div>
 
                 <p className="finding-card__description">{f.description}</p>
