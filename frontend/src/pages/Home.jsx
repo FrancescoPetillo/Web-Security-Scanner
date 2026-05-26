@@ -125,12 +125,10 @@ function Home() {
         )}
       </div>
 
-      <p className="home-credit">
-        Ideato e sviluppato da{" "}
-        <span>Francesco Petillo</span>
-        <span className="home-credit__divider" aria-hidden="true" />
-        <span>Gabriele Esposito</span>
-      </p>
+      <div className="home-credit" aria-label="Ideato e sviluppato da Francesco Petillo e Gabriele Esposito">
+        <span className="home-credit__label">Ideato e sviluppato da</span>
+        <span className="home-credit__names">Francesco Petillo e Gabriele Esposito</span>
+      </div>
     </div>
   );
 }
