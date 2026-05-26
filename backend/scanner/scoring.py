@@ -1,69 +1,60 @@
-def calculate_score(findings):
+def calculate_score(findings, reputation=None, domain=None):
     score = 100
+
+    severity_weights = {
+        "High": 20,
+        "Medium": 10,
+        "Low": 3,
+        "Info": 0
+    }
+
+    confidence_multiplier = {
+        "high": 1.0,
+        "medium": 0.7,
+        "low": 0.4
+    }
+
     high_count = 0
     medium_count = 0
 
     for finding in findings:
+        severity = finding.get("severity", "Low")
+        confidence = finding.get("confidence", "medium")
 
-        if finding["severity"] == "High":
-            score -= 25
+        weight = severity_weights.get(severity, 5)
+        multiplier = confidence_multiplier.get(confidence, 0.7)
+
+        penalty = weight * multiplier
+        score -= penalty
+
+        if severity == "High":
             high_count += 1
-
-        elif finding["severity"] == "Medium":
-            score -= 8
+        elif severity == "Medium":
             medium_count += 1
 
-        elif finding["severity"] == "Low":
-            score -= 2
-
-    # Penalità extra solo se tanti HIGH
+    # 🔥 Penalità cumulative intelligenti
     if high_count >= 2:
         score -= 10
 
-    # Penalità leggera se tanti MEDIUM
     if medium_count >= 4:
         score -= 5
 
-    # Clamp intelligente (molto importante)
-    if high_count == 0:
-        score = max(score, 60)
+    # 🔥 REPUTATION (VirusTotal)
+    if reputation:
+        malicious = reputation.get("malicious", 0)
+        suspicious = reputation.get("suspicious", 0)
 
-    if score < 0:
-        score = 0
+        score -= (malicious * 15)
+        score -= (suspicious * 7)
 
-    return score
+    # 🔥 DOMAIN TRUST (light, non invasivo)
+    if domain:
+        trusted_domains = ["google.com", "github.com", "cloudflare.com"]
 
-def calculate_risk(score, findings):
+        if any(td in domain for td in trusted_domains):
+            score += 5  # piccolo boost realistico
 
-    high_count = sum(1 for f in findings if f["severity"] == "High")
-    medium_count = sum(1 for f in findings if f["severity"] == "Medium")
+    # 🔥 Clamp finale pulito
+    score = max(0, min(score, 100))
 
-    # HIGH risk
-    if high_count >= 1:
-        return {
-            "risk_level": "High",
-            "risk_explanation": (
-                "Critical vulnerabilities were detected that could significantly "
-                "increase the attack surface of the application."
-            )
-        }
-
-    # MEDIUM risk
-    elif score < 70 or medium_count >= 3:
-        return {
-            "risk_level": "Medium",
-            "risk_explanation": (
-                "Several security weaknesses were identified that may expose "
-                "the application to potential risks."
-            )
-        }
-
-    # LOW risk
-    else:
-        return {
-            "risk_level": "Low",
-            "risk_explanation": (
-                "The application shows a generally strong security posture "
-                "with only minor issues detected."
-            )
-        }
+    return round(score)

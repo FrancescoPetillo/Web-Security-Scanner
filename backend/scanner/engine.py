@@ -12,6 +12,7 @@ from scanner.checks.sqli_check import check_sqli
 from scanner.checks.exposure_check import check_exposed_paths
 
 from scanner.scoring import calculate_score, calculate_risk
+from scanner.reputation import get_reputation, get_domain, reputation_penalty
 
 
 def group_findings(findings):
@@ -56,15 +57,18 @@ def run_scan(url: str):
     try:
         original_url = url
 
+        # 🔹 normalizzazione base
         if not url.startswith(("http://", "https://")):
             url = "https://" + url
 
+        # 🔹 fetch con Playwright
         data = fetch_page(url)
 
         headers = data["headers"]
         cookies = data["cookies"]
         final_url = data["url"]
 
+        # 🔹 CHECKS
         findings.extend(check_https(original_url, final_url))
         findings.extend(check_headers(headers))
         findings.extend(check_cookies(cookies))
@@ -76,6 +80,16 @@ def run_scan(url: str):
         findings.extend(check_sqli(final_url))
         findings.extend(check_exposed_paths(final_url))
 
+        # REPUTATION (VirusTotal)
+        try:
+            domain = get_domain(final_url)
+            stats = get_reputation(domain)
+            penalty = reputation_penalty(stats)
+        except:
+            stats = None
+            penalty = 0
+
+        # 🔹 ordinamento per severità
         severity_order = {
             "Critical": 4,
             "High": 3,
@@ -90,8 +104,17 @@ def run_scan(url: str):
             reverse=True
         )
 
+        # 🔹 scoring base
         score = calculate_score(findings)
+
+        # applica penalità reputazione
+        score -= penalty
+        score = max(0, min(score, 100))  # clamp
+
+        # 🔹 rischio
         risk_data = calculate_risk(score, findings)
+
+        # 🔹 grouping
         grouped = group_findings(findings)
 
         return {
@@ -101,7 +124,11 @@ def run_scan(url: str):
             "score": score,
             **risk_data,
             "findings": findings,
-            "grouped_findings": grouped
+            "grouped_findings": grouped,
+            "reputation": {
+                "malicious": stats.get("malicious", 0) if stats else 0,
+                "suspicious": stats.get("suspicious", 0) if stats else 0
+            }
         }
 
     except Exception as e:

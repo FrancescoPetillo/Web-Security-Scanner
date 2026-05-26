@@ -24,6 +24,7 @@ function Home() {
       throw new Error("URL vuoto");
     }
 
+    // aggiungi protocollo se manca
     const withProtocol =
       trimmed.startsWith("http://") || trimmed.startsWith("https://")
         ? trimmed
@@ -31,12 +32,9 @@ function Home() {
 
     const parsed = new URL(withProtocol);
 
-    if (!["http:", "https:"].includes(parsed.protocol)) {
-      throw new Error("Protocollo non valido");
-    }
-
-    if (!parsed.hostname) {
-      throw new Error("Host non valido");
+    // controllo dominio valido (minimo)
+    if (!parsed.hostname.includes(".")) {
+      throw new Error("Dominio non valido");
     }
 
     return parsed.toString();
