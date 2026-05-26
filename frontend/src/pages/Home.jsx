@@ -99,7 +99,7 @@ function Home() {
         <h1 className="tech-title">Web Security Scanner</h1>
 
         <p className="tech-subtitle">
-          Analisi automatizzata, precisione enterprise.
+          Scan. Detect. Secure.
         </p>
 
         <div className="scan-form">
@@ -124,6 +124,13 @@ function Home() {
           </div>
         )}
       </div>
+
+      <p className="home-credit">
+        Ideato e sviluppato da{" "}
+        <span>Francesco Petillo</span>
+        <span className="home-credit__divider" aria-hidden="true" />
+        <span>Gabriele Esposito</span>
+      </p>
     </div>
   );
 }

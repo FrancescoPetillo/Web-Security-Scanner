@@ -233,14 +233,45 @@ body:has(.home-container) {
   position: absolute;
   left: 50%;
   bottom: clamp(14px, 3vh, 28px);
-  width: min(90%, 560px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: fit-content;
+  max-width: min(90%, 620px);
+  min-height: 42px;
+  padding: 10px 18px;
   transform: translateX(-50%);
-  color: rgba(148, 163, 184, 0.62);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 999px;
+  background:
+    linear-gradient(135deg, rgba(15, 23, 42, 0.58), rgba(15, 23, 42, 0.26)),
+    rgba(2, 6, 23, 0.32);
+  color: rgba(226, 232, 240, 0.68);
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0;
-  line-height: 1.5;
+  line-height: 1.2;
   text-align: center;
+  box-shadow:
+    0 14px 34px rgba(2, 6, 23, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.home-credit span:not(.home-credit__divider) {
+  color: rgba(248, 250, 252, 0.88);
+  white-space: nowrap;
+}
+
+.home-credit__divider {
+  width: 4px;
+  height: 4px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: rgba(96, 165, 250, 0.78);
+  box-shadow: 0 0 16px rgba(96, 165, 250, 0.65);
 }
 
 @media (max-height: 620px) {
@@ -260,6 +291,21 @@ body:has(.home-container) {
   .home-credit {
     bottom: 10px;
     font-size: 11px;
+    min-height: 36px;
+    padding: 8px 14px;
+  }
+}
+
+@media (max-width: 560px) {
+  .home-credit {
+    flex-wrap: wrap;
+    gap: 6px 9px;
+    width: min(90%, 360px);
+    border-radius: 18px;
+  }
+
+  .home-credit__divider {
+    display: none;
   }
 }
 
