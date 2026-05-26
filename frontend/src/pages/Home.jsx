@@ -62,7 +62,7 @@ function Home() {
 
     try {
       const res = await fetch(
-        "https://web-security-scanner-api.onrender.com/scan", 
+        "https://web-security-scanner-production.up.railway.app/scan", // ✅ FIX QUI
         {
           method: "POST",
           headers: {
@@ -73,7 +73,7 @@ function Home() {
       );
 
       if (!res.ok) {
-        throw new Error("Errore dal server");
+        throw new Error(`Errore server (${res.status})`);
       }
 
       const data = await res.json();
@@ -84,7 +84,7 @@ function Home() {
       navigate("/results", {
         state: {
           status: "error",
-          error: err.message,
+          error: err.message || "Errore sconosciuto",
         },
       });
     } finally {
