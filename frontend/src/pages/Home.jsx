@@ -47,8 +47,8 @@ function Home() {
 
     try {
       safeUrl = normalizeUrl(url);
-    } catch {
-      alert("Inserisci un URL valido");
+    } catch (err) {
+      alert(err.message);
       return;
     }
 
@@ -61,21 +61,26 @@ function Home() {
     }, 800);
 
     try {
-      const res = await fetch("http://localhost:8000/scan", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ url: safeUrl }),
-   });
+      const res = await fetch(
+        "https://web-security-scanner-api.onrender.com/scan", 
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ url: safeUrl }),
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error("Errore dal server");
+      }
 
       const data = await res.json();
 
-      clearInterval(interval);
       navigate("/results", { state: data });
-    } catch (err) {
-      clearInterval(interval);
 
+    } catch (err) {
       navigate("/results", {
         state: {
           status: "error",
@@ -83,6 +88,7 @@ function Home() {
         },
       });
     } finally {
+      clearInterval(interval);
       setLoading(false);
     }
   }
