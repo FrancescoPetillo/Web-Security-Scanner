@@ -61,10 +61,13 @@ function Home() {
     }, 800);
 
     try {
-      const res = await fetch(
-        `http://localhost:8000/scan?url=${encodeURIComponent(safeUrl)}`,
-        { method: "POST" }
-      );
+      const res = await fetch("http://localhost:8000/scan", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ url: safeUrl }),
+   });
 
       const data = await res.json();
 

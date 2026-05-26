@@ -2,18 +2,24 @@ from urllib.parse import urlparse
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 from scanner.engine import run_scan
 
 app = FastAPI()
 
+# 🔥 CORS APERTO (DEBUG)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["*"],  # 🔥 temporaneo
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# 🔹 MODEL REQUEST
+class ScanRequest(BaseModel):
+    url: str
 
 
 def validate_url(url: str) -> str:
@@ -38,8 +44,8 @@ def root():
 
 
 @app.post("/scan")
-def start_scan(url: str):
-    safe_url = validate_url(url)
+def start_scan(req: ScanRequest):
+    safe_url = validate_url(req.url)
 
     result = run_scan(safe_url)
 
