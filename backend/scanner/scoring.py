@@ -58,3 +58,25 @@ def calculate_score(findings, reputation=None, domain=None):
     score = max(0, min(score, 100))
 
     return round(score)
+
+
+def calculate_risk(score, findings):
+    high_count = sum(1 for f in findings if f.get("severity") == "High")
+    medium_count = sum(1 for f in findings if f.get("severity") == "Medium")
+
+    if high_count >= 1:
+        return {
+            "risk_level": "High",
+            "risk_explanation": "Critical vulnerabilities detected."
+        }
+
+    if score < 75 or medium_count >= 3:
+        return {
+            "risk_level": "Medium",
+            "risk_explanation": "Several weaknesses detected."
+        }
+
+    return {
+        "risk_level": "Low",
+        "risk_explanation": "Strong security posture."
+    }
