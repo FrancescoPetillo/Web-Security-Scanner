@@ -241,4 +241,4 @@ Questo progetto è fornito così com'è per scopi educativi e di security testin
 
 **Versione:** 0.0.0  
 **Ultimo aggiornamento:** Maggio 2026  
-**Autore:** Francesco
+**Autori:** Francesco Petillo e Gabriele Esposito
